@@ -70,8 +70,44 @@ export function ProfitsTab() {
       </div>
 
       <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] overflow-hidden">
-        <div className="border-b border-border p-4">
+        <div className="border-b border-border p-4 flex items-center justify-between gap-2 flex-wrap">
           <h3 className="text-lg font-bold">تفاصيل الأرباح حسب الصنف</h3>
+          <ExportButtons
+            filename="تقرير-صافي-الأرباح"
+            title="تقرير صافي الأرباح"
+            columns={[
+              { header: "الصنف", key: "name" },
+              { header: "القطع المبيعة", key: "qty" },
+              { header: "متوسط سعر البيع", key: "avg" },
+              { header: "إجمالي المبيعات", key: "rev" },
+              { header: "صافي الربح", key: "prof" },
+              { header: "هامش الربح", key: "margin" },
+            ]}
+            rows={[
+              ...byItem.map((it) => ({
+                name: it.name,
+                qty: it.qty,
+                avg: formatCurrency(it.avgSale),
+                rev: formatCurrency(it.revenue),
+                prof: formatCurrency(it.profit),
+                margin:
+                  it.revenue > 0
+                    ? ((it.profit / it.revenue) * 100).toFixed(1) + "%"
+                    : "—",
+              })),
+              {
+                name: "الإجمالي",
+                qty: totalQty,
+                avg: "—",
+                rev: formatCurrency(totalRevenue),
+                prof: formatCurrency(totalProfit),
+                margin:
+                  totalRevenue > 0
+                    ? ((totalProfit / totalRevenue) * 100).toFixed(1) + "%"
+                    : "—",
+              },
+            ]}
+          />
         </div>
         {isLoading ? (
           <div className="p-8 text-center text-muted-foreground">جارٍ التحميل...</div>
