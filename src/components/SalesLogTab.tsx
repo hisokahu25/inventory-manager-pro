@@ -132,12 +132,23 @@ export function SalesLogTab() {
             <Label className="mb-1.5 flex items-center gap-1.5">
               <Barcode className="h-4 w-4" /> مسح الباركود
             </Label>
-            <Input
-              value={barcodeInput}
-              onChange={(e) => setBarcodeInput(e.target.value)}
-              placeholder="امسح الباركود ثم اضغط Enter"
-              className="h-11"
-            />
+            <div className="flex gap-2">
+              <Input
+                value={barcodeInput}
+                onChange={(e) => setBarcodeInput(e.target.value)}
+                placeholder="امسح الباركود ثم اضغط Enter"
+                className="h-11"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setScanOpen(true)}
+                className="h-11 shrink-0"
+                title="مسح بكاميرا الموبايل"
+              >
+                <Camera className="h-4 w-4 ml-1" /> كاميرا
+              </Button>
+            </div>
           </form>
         </div>
       </div>
