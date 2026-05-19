@@ -33,6 +33,27 @@ export function SalesLogTab() {
   const [sellQty, setSellQty] = useState("1");
   const [recording, setRecording] = useState(false);
   const [scanOpen, setScanOpen] = useState(false);
+  const [dateFilter, setDateFilter] = useState<string>(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  });
+  const [showAll, setShowAll] = useState(false);
+
+  const filteredSales = useMemo(() => {
+    if (showAll) return sales;
+    if (!dateFilter) return sales;
+    return sales.filter((s) => {
+      const d = new Date(s.created_at);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      return key === dateFilter;
+    });
+  }, [sales, dateFilter, showAll]);
+
+  const dayTotal = useMemo(
+    () =>
+      filteredSales.reduce((s, x) => s + Number(x.sale_price) * x.quantity, 0),
+    [filteredSales],
+  );
 
   const handleBarcodeDetected = async (code: string) => {
     setBarcodeInput("");
@@ -231,29 +252,64 @@ export function SalesLogTab() {
 
       {/* Recent sales */}
       <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] overflow-hidden">
-        <div className="border-b border-border p-4 flex items-center justify-between gap-2 flex-wrap">
-          <h3 className="text-lg font-bold">آخر المبيعات</h3>
-          <ExportButtons
-            filename="سجل-المبيعات"
-            title="سجل المبيعات"
-            columns={[
-              { header: "الصنف", key: "name" },
-              { header: "الكمية", key: "qty" },
-              { header: "سعر البيع", key: "price" },
-              { header: "الإجمالي", key: "total" },
-              { header: "التاريخ", key: "date" },
-            ]}
-            rows={sales.map((s) => ({
-              name: s.item_name,
-              qty: s.quantity,
-              price: formatCurrency(Number(s.sale_price)),
-              total: formatCurrency(Number(s.sale_price) * s.quantity),
-              date: new Date(s.created_at).toLocaleString("ar-EG"),
-            }))}
-          />
+        <div className="border-b border-border p-4 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h3 className="text-lg font-bold">
+              {showAll ? "كل المبيعات" : "مبيعات اليوم"}
+            </h3>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+              {filteredSales.length} عملية · {formatCurrency(dayTotal)}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => {
+                setDateFilter(e.target.value);
+                setShowAll(false);
+              }}
+              className="h-9 w-auto"
+              disabled={showAll}
+            />
+            <Button
+              type="button"
+              size="sm"
+              variant={showAll ? "default" : "outline"}
+              onClick={() => setShowAll((v) => !v)}
+            >
+              {showAll ? "عرض يوم محدد" : "عرض الكل"}
+            </Button>
+            <ExportButtons
+              filename={
+                showAll
+                  ? "سجل-المبيعات-الكامل"
+                  : `سجل-المبيعات-${dateFilter}`
+              }
+              title={
+                showAll ? "سجل المبيعات الكامل" : `سجل المبيعات - ${dateFilter}`
+              }
+              columns={[
+                { header: "الصنف", key: "name" },
+                { header: "الكمية", key: "qty" },
+                { header: "سعر البيع", key: "price" },
+                { header: "الإجمالي", key: "total" },
+                { header: "التاريخ", key: "date" },
+              ]}
+              rows={filteredSales.map((s) => ({
+                name: s.item_name,
+                qty: s.quantity,
+                price: formatCurrency(Number(s.sale_price)),
+                total: formatCurrency(Number(s.sale_price) * s.quantity),
+                date: new Date(s.created_at).toLocaleString("ar-EG"),
+              }))}
+            />
+          </div>
         </div>
-        {sales.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground">لا توجد مبيعات بعد</div>
+        {filteredSales.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground">
+            {showAll ? "لا توجد مبيعات بعد" : "لا توجد مبيعات في هذا اليوم"}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -267,7 +323,7 @@ export function SalesLogTab() {
                 </tr>
               </thead>
               <tbody>
-                {sales.slice(0, 30).map((s) => (
+                {filteredSales.slice(0, showAll ? 100 : 200).map((s) => (
                   <tr key={s.id} className="border-t border-border hover:bg-muted/30">
                     <td className="px-4 py-3 font-semibold">{s.item_name}</td>
                     <td className="px-4 py-3">{s.quantity}</td>

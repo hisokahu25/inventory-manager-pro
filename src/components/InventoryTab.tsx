@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useState, Fragment, type FormEvent } from "react";
 import { Plus, Trash2, Package, Barcode, ScanLine, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -217,38 +217,77 @@ export function InventoryTab() {
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-3 text-right">الصنف</th>
+                  <th className="px-4 py-3 text-right">الصنف / الدفعة</th>
                   <th className="px-4 py-3 text-right">الباركود</th>
-                  <th className="px-4 py-3 text-right">الكمية</th>
+                  <th className="px-4 py-3 text-right">الكمية المتبقية</th>
+                  <th className="px-4 py-3 text-right">سعر شراء الدفعة</th>
                   <th className="px-4 py-3 text-right">قيمة الشراء</th>
-                  <th className="px-4 py-3 text-right">قيمة البيع</th>
                   <th className="px-4 py-3 text-right">سعر البيع الحالي</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody>
-                {items.map((it) => (
-                  <tr key={it.id} className="border-t border-border hover:bg-muted/30">
-                    <td className="px-4 py-3 font-semibold">{it.name}</td>
-                    <td className="px-4 py-3 text-muted-foreground font-mono text-xs">
-                      {it.barcode || "—"}
-                    </td>
-                    <td className="px-4 py-3">{it.total_quantity}</td>
-                    <td className="px-4 py-3">{formatCurrency(it.total_cost_value)}</td>
-                    <td className="px-4 py-3">{formatCurrency(it.total_sale_value)}</td>
-                    <td className="px-4 py-3 font-semibold text-primary">
-                      {formatCurrency(Number(it.current_sale_price))}
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => handleDelete(it.id, it.name)}
-                        className="text-destructive/70 hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {items.map((it) => {
+                  const activeBatches = it.batches.filter((b) => b.quantity_remaining > 0);
+                  return (
+                    <Fragment key={it.id}>
+                      <tr className="border-t-2 border-border bg-muted/20">
+                        <td className="px-4 py-3 font-bold">{it.name}</td>
+                        <td className="px-4 py-3 text-muted-foreground font-mono text-xs">
+                          {it.barcode || "—"}
+                        </td>
+                        <td className="px-4 py-3 font-bold">{it.total_quantity}</td>
+                        <td className="px-4 py-3 text-muted-foreground">—</td>
+                        <td className="px-4 py-3 font-semibold">
+                          {formatCurrency(it.total_cost_value)}
+                        </td>
+                        <td className="px-4 py-3 font-bold text-primary">
+                          {formatCurrency(Number(it.current_sale_price))}
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => handleDelete(it.id, it.name)}
+                            className="text-destructive/70 hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                      {activeBatches.length === 0 ? (
+                        <tr className="border-t border-border">
+                          <td colSpan={7} className="px-8 py-2 text-xs text-muted-foreground">
+                            لا توجد دفعات متبقية
+                          </td>
+                        </tr>
+                      ) : (
+                        activeBatches.map((b, idx) => (
+                          <tr key={b.id} className="border-t border-border hover:bg-muted/30">
+                            <td className="px-8 py-2 text-xs text-muted-foreground">
+                              ↳ دفعة {idx + 1} —{" "}
+                              {new Date(b.created_at).toLocaleDateString("ar-EG")}
+                            </td>
+                            <td className="px-4 py-2"></td>
+                            <td className="px-4 py-2">
+                              {b.quantity_remaining}{" "}
+                              <span className="text-xs text-muted-foreground">
+                                / {b.quantity_added}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2">{formatCurrency(Number(b.cost_price))}</td>
+                            <td className="px-4 py-2">
+                              {formatCurrency(b.quantity_remaining * Number(b.cost_price))}
+                            </td>
+                            <td className="px-4 py-2 text-muted-foreground text-xs">
+                              {formatCurrency(Number(b.sale_price))}{" "}
+                              <span className="opacity-60">(سعر الدفعة الأصلي)</span>
+                            </td>
+                            <td className="px-4 py-2"></td>
+                          </tr>
+                        ))
+                      )}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
