@@ -32,6 +32,18 @@ export function SalesLogTab() {
   const [sellingId, setSellingId] = useState<string | null>(null);
   const [sellQty, setSellQty] = useState("1");
   const [recording, setRecording] = useState(false);
+  const [scanOpen, setScanOpen] = useState(false);
+
+  const handleBarcodeDetected = async (code: string) => {
+    setBarcodeInput("");
+    const item = await findItemByBarcode(code);
+    if (item) {
+      setSearch(item.name);
+      toast.success(`تم العثور على: ${item.name}`);
+    } else {
+      toast.error(`الباركود ${code} غير موجود في المخزن`);
+    }
+  };
 
   const { listening, supported, start, stop } = useVoiceSearch((text) => {
     setSearch(text);
