@@ -285,7 +285,7 @@ export function InventoryTab() {
                           </tr>
                         ))
                       )}
-                    </>
+                    </Fragment>
                   );
                 })}
               </tbody>
