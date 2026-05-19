@@ -230,8 +230,8 @@ export function InventoryTab() {
                 {items.map((it) => {
                   const activeBatches = it.batches.filter((b) => b.quantity_remaining > 0);
                   return (
-                    <>
-                      <tr key={it.id} className="border-t-2 border-border bg-muted/20">
+                    <Fragment key={it.id}>
+                      <tr className="border-t-2 border-border bg-muted/20">
                         <td className="px-4 py-3 font-bold">{it.name}</td>
                         <td className="px-4 py-3 text-muted-foreground font-mono text-xs">
                           {it.barcode || "—"}
