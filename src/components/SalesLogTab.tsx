@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, type FormEvent } from "react";
-import { Mic, MicOff, Search, ShoppingCart, Barcode } from "lucide-react";
+import { Mic, MicOff, Search, ShoppingCart, Barcode, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
