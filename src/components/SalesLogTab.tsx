@@ -33,6 +33,27 @@ export function SalesLogTab() {
   const [sellQty, setSellQty] = useState("1");
   const [recording, setRecording] = useState(false);
   const [scanOpen, setScanOpen] = useState(false);
+  const [dateFilter, setDateFilter] = useState<string>(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  });
+  const [showAll, setShowAll] = useState(false);
+
+  const filteredSales = useMemo(() => {
+    if (showAll) return sales;
+    if (!dateFilter) return sales;
+    return sales.filter((s) => {
+      const d = new Date(s.created_at);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      return key === dateFilter;
+    });
+  }, [sales, dateFilter, showAll]);
+
+  const dayTotal = useMemo(
+    () =>
+      filteredSales.reduce((s, x) => s + Number(x.sale_price) * x.quantity, 0),
+    [filteredSales],
+  );
 
   const handleBarcodeDetected = async (code: string) => {
     setBarcodeInput("");
