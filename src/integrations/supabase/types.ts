@@ -43,9 +43,11 @@ export type Database = {
           batch_id: string | null
           cost_price: number
           created_at: string
+          description: string | null
           id: string
           item_id: string
           item_name: string
+          kind: string
           profit: number
           quantity: number
           sale_price: number
@@ -54,9 +56,11 @@ export type Database = {
           batch_id?: string | null
           cost_price: number
           created_at?: string
+          description?: string | null
           id?: string
           item_id: string
           item_name: string
+          kind?: string
           profit: number
           quantity: number
           sale_price: number
@@ -65,9 +69,11 @@ export type Database = {
           batch_id?: string | null
           cost_price?: number
           created_at?: string
+          description?: string | null
           id?: string
           item_id?: string
           item_name?: string
+          kind?: string
           profit?: number
           quantity?: number
           sale_price?: number
@@ -127,13 +133,92 @@ export type Database = {
           },
         ]
       }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          commission: number
+          created_at: string
+          id: string
+          kind: string
+          note: string | null
+          wallet_id: string
+          wallet_name: string
+        }
+        Insert: {
+          amount: number
+          commission?: number
+          created_at?: string
+          id?: string
+          kind: string
+          note?: string | null
+          wallet_id: string
+          wallet_name: string
+        }
+        Update: {
+          amount?: number
+          commission?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          wallet_id?: string
+          wallet_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      record_return: {
+        Args: { p_item_id: string; p_quantity: number }
+        Returns: undefined
+      }
       record_sale: {
         Args: { p_item_id: string; p_quantity: number }
+        Returns: undefined
+      }
+      wallet_sale: {
+        Args: {
+          p_amount: number
+          p_commission: number
+          p_note?: string
+          p_wallet_id: string
+        }
+        Returns: undefined
+      }
+      wallet_topup: {
+        Args: { p_amount: number; p_note?: string; p_wallet_id: string }
         Returns: undefined
       }
     }
