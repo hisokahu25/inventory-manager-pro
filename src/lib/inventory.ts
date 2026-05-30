@@ -20,13 +20,33 @@ export type Batch = {
 
 export type Sale = {
   id: string;
-  item_id: string;
+  item_id: string | null;
   batch_id: string | null;
   item_name: string;
   quantity: number;
   sale_price: number;
   cost_price: number;
   profit: number;
+  kind: "item" | "free" | "return";
+  description: string | null;
+  created_at: string;
+};
+
+export type Wallet = {
+  id: string;
+  name: string;
+  balance: number;
+  created_at: string;
+};
+
+export type WalletTx = {
+  id: string;
+  wallet_id: string;
+  wallet_name: string;
+  kind: "topup" | "sale";
+  amount: number;
+  commission: number;
+  note: string | null;
   created_at: string;
 };
 
@@ -140,12 +160,93 @@ export async function fetchSales(): Promise<Sale[]> {
     .select("*")
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as Sale[];
+}
+
+export async function recordReturn(itemId: string, quantity: number) {
+  const { error } = await supabase.rpc("record_return", {
+    p_item_id: itemId,
+    p_quantity: quantity,
+  });
+  if (error) throw error;
+}
+
+export async function recordFreeSale(params: {
+  description: string;
+  quantity: number;
+  price: number;
+}) {
+  const total = params.price;
+  const { error } = await supabase.from("sales").insert({
+    item_id: null,
+    batch_id: null,
+    item_name: params.description,
+    quantity: params.quantity,
+    sale_price: total,
+    cost_price: 0,
+    profit: total * params.quantity,
+    kind: "free",
+    description: params.description,
+  });
+  if (error) throw error;
 }
 
 export async function deleteItem(id: string) {
   const { error } = await supabase.from("items").delete().eq("id", id);
   if (error) throw error;
+}
+
+// Wallets
+export async function fetchWallets(): Promise<Wallet[]> {
+  const { data, error } = await supabase
+    .from("wallets")
+    .select("*")
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as Wallet[];
+}
+
+export async function createWallet(name: string) {
+  const { error } = await supabase.from("wallets").insert({ name });
+  if (error) throw error;
+}
+
+export async function deleteWallet(id: string) {
+  const { error } = await supabase.from("wallets").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function walletTopup(walletId: string, amount: number, note?: string) {
+  const { error } = await supabase.rpc("wallet_topup", {
+    p_wallet_id: walletId,
+    p_amount: amount,
+    p_note: note ?? undefined,
+  });
+  if (error) throw error;
+}
+
+export async function walletSale(
+  walletId: string,
+  amount: number,
+  commission: number,
+  note?: string,
+) {
+  const { error } = await supabase.rpc("wallet_sale", {
+    p_wallet_id: walletId,
+    p_amount: amount,
+    p_commission: commission,
+    p_note: note ?? undefined,
+  });
+  if (error) throw error;
+}
+
+export async function fetchWalletTransactions(): Promise<WalletTx[]> {
+  const { data, error } = await supabase
+    .from("wallet_transactions")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as WalletTx[];
 }
 
 export function formatCurrency(n: number) {

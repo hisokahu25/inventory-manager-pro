@@ -1,20 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Warehouse, Receipt, TrendingUp, Store } from "lucide-react";
+import { Warehouse, Receipt, TrendingUp, Store, Wallet } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { InventoryTab } from "@/components/InventoryTab";
 import { SalesLogTab } from "@/components/SalesLogTab";
 import { ProfitsTab } from "@/components/ProfitsTab";
+import { WalletsTab } from "@/components/WalletsTab";
 import { PasswordGate } from "@/components/PasswordGate";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type TabId = "inventory" | "sales" | "profits";
+type TabId = "inventory" | "sales" | "profits" | "wallets";
 
 const TABS: { id: TabId; label: string; icon: React.ReactNode; locked: boolean }[] = [
   { id: "sales", label: "سجل المبيعات", icon: <Receipt className="h-4 w-4" />, locked: false },
+  { id: "wallets", label: "المحافظ الإلكترونية", icon: <Wallet className="h-4 w-4" />, locked: true },
   { id: "inventory", label: "المخزن", icon: <Warehouse className="h-4 w-4" />, locked: true },
   { id: "profits", label: "صافي الأرباح", icon: <TrendingUp className="h-4 w-4" />, locked: true },
 ];
@@ -65,6 +67,11 @@ function Index() {
       {/* Content */}
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         {tab === "sales" && <SalesLogTab />}
+        {tab === "wallets" && (
+          <PasswordGate title="المحافظ الإلكترونية">
+            <WalletsTab />
+          </PasswordGate>
+        )}
         {tab === "inventory" && (
           <PasswordGate title="المخزن">
             <InventoryTab />
