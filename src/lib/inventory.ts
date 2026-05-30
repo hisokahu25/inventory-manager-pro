@@ -235,7 +235,7 @@ export async function walletSale(
     p_wallet_id: walletId,
     p_amount: amount,
     p_commission: commission,
-    p_note: note ?? null,
+    p_note: note ?? undefined,
   });
   if (error) throw error;
 }
