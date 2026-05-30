@@ -20,13 +20,33 @@ export type Batch = {
 
 export type Sale = {
   id: string;
-  item_id: string;
+  item_id: string | null;
   batch_id: string | null;
   item_name: string;
   quantity: number;
   sale_price: number;
   cost_price: number;
   profit: number;
+  kind: "item" | "free" | "return";
+  description: string | null;
+  created_at: string;
+};
+
+export type Wallet = {
+  id: string;
+  name: string;
+  balance: number;
+  created_at: string;
+};
+
+export type WalletTx = {
+  id: string;
+  wallet_id: string;
+  wallet_name: string;
+  kind: "topup" | "sale";
+  amount: number;
+  commission: number;
+  note: string | null;
   created_at: string;
 };
 
