@@ -45,7 +45,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
-          item_id: string
+          item_id: string | null
           item_name: string
           kind: string
           profit: number
@@ -58,7 +58,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          item_id: string
+          item_id?: string | null
           item_name: string
           kind?: string
           profit: number
@@ -71,7 +71,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          item_id?: string
+          item_id?: string | null
           item_name?: string
           kind?: string
           profit?: number
