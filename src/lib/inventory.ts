@@ -220,7 +220,7 @@ export async function walletTopup(walletId: string, amount: number, note?: strin
   const { error } = await supabase.rpc("wallet_topup", {
     p_wallet_id: walletId,
     p_amount: amount,
-    p_note: note ?? null,
+    p_note: note ?? undefined,
   });
   if (error) throw error;
 }
