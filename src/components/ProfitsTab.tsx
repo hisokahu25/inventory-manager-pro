@@ -25,7 +25,8 @@ export function ProfitsTab() {
       rev += r;
       prof += p;
       qty += s.quantity;
-      const cur = map.get(s.item_id) ?? {
+      const key = s.item_id ?? `free:${s.item_name}`;
+      const cur = map.get(key) ?? {
         name: s.item_name,
         qty: 0,
         revenue: 0,
@@ -35,7 +36,7 @@ export function ProfitsTab() {
       cur.qty += s.quantity;
       cur.revenue += r;
       cur.profit += p;
-      map.set(s.item_id, cur);
+      map.set(key, cur);
     }
     const byItem = Array.from(map.values())
       .map((v) => ({ ...v, avgSale: v.qty ? v.revenue / v.qty : 0 }))
