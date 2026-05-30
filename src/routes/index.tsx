@@ -67,6 +67,11 @@ function Index() {
       {/* Content */}
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         {tab === "sales" && <SalesLogTab />}
+        {tab === "wallets" && (
+          <PasswordGate title="المحافظ الإلكترونية">
+            <WalletsTab />
+          </PasswordGate>
+        )}
         {tab === "inventory" && (
           <PasswordGate title="المخزن">
             <InventoryTab />
